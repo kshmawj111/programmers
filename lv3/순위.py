@@ -1,38 +1,38 @@
 # https://programmers.co.kr/learn/courses/30/lessons/49191?language=python3
 """
-    각 경기 결과를 승자를 루트로 하는 트리로 형성하기
-    union-find 알고리즘 사용
+
 
 """
 
 
-def find_parent(node, parent):
-    if parent[node] != node:
-        parent[node] = find_parent(parent[node], parent)
-
-    return parent[node]
-
-
-def union(winner, loser, parent, rank):
-    winner_root = find_parent(winner, parent)
-    loser_root = find_parent(loser, parent)
-
-    # 다른 집합에 속해 있으면
-    if winner_root != loser_root:
-        parent[loser_root] = winner_root
-
-
 def solution(n, results):
     answer = 0
-    parent = [x for x in range(n+1)]
-    rank = [0 for x in range(n+1)]
+    wins = {x: set() for x in range(1, n+1)}
+    loses = {x: set() for x in range(1, n+1)}
 
     for r in results:
         w, l = r
-        union(w, l, parent, rank)
+        wins[w].take_bus(l)
+        loses[l].take_bus(w)
 
-    print(parent)
-    print(rank)
+    print(wins)
+    print(loses)
+    print('#################################')
+    # 앞선 결과를 바탕으로 나머지 결과를 추론
+    for k in wins.keys():
+        for winner in loses[k]:
+            wins[winner].update(wins[k])
+
+        for loser in wins[k]:
+            loses[loser].update(loses[k])
+
+        print(wins)
+        print(loses)
+        print('################################')
+
+    for k in wins.keys():
+        if len(wins[k]) + len(loses[k]) == n -1:
+            answer += 1
 
     return answer
 
